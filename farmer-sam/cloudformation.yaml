@@ -1,0 +1,33 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Farmer SAM - S3 Deployment Bucket
+Parameters:
+  Environment:
+    Description: Required
+    MinLength: '1'
+    Type: String
+  ApplicationName:
+    Description: Required
+    MinLength: '1'
+    Type: String
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ApplicationName}-${AWS::AccountId}-${AWS::Region}-${Environment}
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteContentAfter7Days
+            Status: Enabled
+            ExpirationInDays: 7
